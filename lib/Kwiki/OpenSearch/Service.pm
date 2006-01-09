@@ -1,6 +1,6 @@
 package Kwiki::OpenSearch::Service;
 use strict;
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 
 use Kwiki::Plugin '-Base';
 use mixin 'Kwiki::Installer';
@@ -19,7 +19,7 @@ sub register {
 }
 
 sub opensearch_service {
-    $self->hub->headers->content_type('application/xml');
+    $self->hub->headers->content_type('application/rss+xml');
     $self->template_process(
 	"opensearch_rss.xml",
 	pages => $self->perform_opensearch_service,
@@ -28,7 +28,7 @@ sub opensearch_service {
 }
 
 sub opensearch_description {
-    $self->hub->headers->content_type('application/xml');
+    $self->hub->headers->content_type('application/opensearch+xml');
     $self->template_process("opensearch_description.xml");
 }
 
@@ -90,7 +90,7 @@ L<WWW::OpenSearch>, L<Kwiki::LiveSearch>
 
 __template/tt2/opensearch_rss.xml__
 <?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0" xmlns:openSearch="http://a9.com/-/spec/opensearchrss/1.0/">
+<rss version="2.0" xmlns:openSearch="http://a9.com/-/spec/opensearch/1.1/">
 <channel>
 <title>[% site_title | html %]: [% q | html %]</title>
 [% USE kwiki = url(script_name) -%]
@@ -109,15 +109,14 @@ __template/tt2/opensearch_rss.xml__
 </rss>
 __template/tt2/opensearch_description.xml__
 <?xml version="1.0" encoding="UTF-8"?>
-<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearchdescription/1.0/">
-  <Url>[% script_name %]?action=opensearch_service&amp;q={searchTerms}</Url>
-  <Format>http://a9.com/-/spec/opensearchrss/1.0/</Format>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <Url type="application/rss+xml" template="[% script_name %]?action=opensearch_service&amp;q={searchTerms}" />
   <ShortName>[% site_title | html %]</ShortName>
   <LongName>[% site_title | html %]</LongName>
   <Description>[% description | html %]</Description>
   [% IF tags %]<Tags>[% tags %]</Tags>[% END %]
   [% IF logo_image.match("https?://") %]<Image>[% logo_image %]</Image>[% END %]
-  <SampleSearch>[% sample_search %]</SampleSearch>
+  <Query role="example" searchTerms="[% sample_search %]" />
   <Developer>[% developer | html %]</Developer>
   <Contact>[% contact | html %]</Contact>
   [% IF attribution %]<Attribution>[% attribution %]</Attribution>[% END %]
